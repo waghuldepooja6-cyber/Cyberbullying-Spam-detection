@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>AI Cyberbullying & Spam Detection</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            color: #222;
+        }
+
+        .header {
+            background: #1f3c88;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 30px;
+        }
+
+        .header p {
+            margin-top: 8px;
+            font-size: 16px;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 850px;
+            margin: 35px auto;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.10);
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            margin-top: 18px;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+            font-size: 15px;
+        }
+
+        textarea {
+            height: 130px;
+            resize: vertical;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 22px;
+            padding: 14px;
+            border: none;
+            border-radius: 7px;
+            background: #1f3c88;
+            color: white;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #162d68;
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 10px;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+        }
+
+        .result h2 {
+            margin-top: 0;
+        }
+
+        .prediction {
+            font-size: 25px;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .normal {
+            color: #16803c;
+        }
+
+        .spam {
+            color: #c47b00;
+        }
+
+        .cyberbullying {
+            color: #c62828;
+        }
+
+        .confidence-text {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 25px;
+            background: #ddd;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: #1f3c88;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            line-height: 25px;
+        }
+
+        .probability {
+            margin-top: 25px;
+        }
+
+        .probability p {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #eef3ff;
+            border-left: 5px solid #1f3c88;
+        }
+
+        .footer {
+            text-align: center;
+            margin: 30px;
+            color: #666;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+    <div class="header">
+
+        <h1>
+            AI-Based Cyberbullying & Online Spam Detection System
+        </h1>
+
+        <p>
+            Detect Normal, Spam and Cyberbullying Messages
+        </p>
+
+    </div>
+
+
+    <div class="container">
+
+        <div class="card">
+
+            <form method="POST">
+
+                <label for="username">
+                    Enter Username
+                </label>
+
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    placeholder="Example: pooja123"
+                    value="{{ username }}"
+                    required
+                >
+
+
+                <label for="message">
+                    Enter Message
+                </label>
+
+                <textarea
+                    id="message"
+                    name="message"
+                    placeholder="Type the message here..."
+                    required
+                >{{ message }}</textarea>
+
+
+                <button type="submit">
+                    Detect Message
+                </button>
+
+            </form>
+
+
+            {% if prediction %}
+
+            <div class="result">
+
+                <h2>
+                    Detection Result
+                </h2>
+
+                <p>
+                    <strong>Username:</strong>
+                    {{ username }}
+                </p>
+
+                <p>
+                    <strong>Message:</strong>
+                    {{ message }}
+                </p>
+
+
+                <div class="prediction
+                    {% if prediction == 'Normal' %}
+                        normal
+                    {% elif prediction == 'Spam' %}
+                        spam
+                    {% else %}
+                        cyberbullying
+                    {% endif %}
+                ">
+
+                    Prediction: {{ prediction }}
+
+                </div>
+
+
+                <div class="confidence-text">
+
+                    Confidence Level:
+                    <strong>{{ confidence }}%</strong>
+
+                </div>
+
+
+                <div class="progress-container">
+
+                    
+                    <div
+                        class="progress-bar"
+                        id="confidenceBar"
+                        data-confidence="{{ confidence|default(0) }}">
+
+                        {{ confidence|default(0) }}%
+                    </div>
+
+                </div>
+
+
+                {% if probabilities %}
+
+                <div class="probability">
+
+                    <h3>
+                        Classification Probabilities
+                    </h3>
+
+
+                    <p>
+                        Normal:
+                        {{ probabilities.get('Normal', 0) }}%
+                    </p>
+
+
+                    <p>
+                        Spam:
+                        {{ probabilities.get('Spam', 0) }}%
+                    </p>
+
+
+                    <p>
+                        Cyberbullying:
+                        {{ probabilities.get('Cyberbullying', 0) }}%
+                    </p>
+
+                </div>
+
+                {% endif %}
+
+
+                <div class="info">
+
+                    <strong>AI Model:</strong>
+                    TF-IDF Vectorization + Logistic Regression
+
+                </div>
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <div class="footer">
+
+        AI-Based Cyberbullying and Online Spam Detection System
+
+    </div>
+
+    <script>
+        const confidenceBar=document.getElementById("confidenceBar");
+
+        if (confidenceBar) {
+            const confidencev = confidenceBar.dataset.confidence || 0;
+            confidenceBar.style.width = confidence + "%";
+        }
+    </script>
+
+</body>
+
+</html>

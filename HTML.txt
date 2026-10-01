@@ -1,0 +1,21 @@
+<label>Username</label>
+
+<input
+    type="text"
+    name="username"
+    placeholder="Enter Username (e.g. pooja123)"
+    value="{{ username }}"
+    required
+>
+
+<label>Enter Message</label>
+
+<textarea
+    name="message"
+    placeholder="Enter your online message/comment here..."
+    required
+>{{ message }}</textarea>
+
+<button type="submit">
+    Detect Message
+</button>
