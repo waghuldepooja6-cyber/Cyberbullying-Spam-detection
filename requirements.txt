@@ -1,5 +1,7 @@
 Flask
 gunicorn
 scikit-learn
-mysql-connector-python
 numpy
+mysql-connector-python
+Flask-SQLAlchemy
+
