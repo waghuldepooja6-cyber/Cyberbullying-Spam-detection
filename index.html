@@ -1,275 +1,891 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>AI-Based Cyberbullying and Online Spam Detection</title>
+    <title>AI-Based Cyberbullying and Online Spam Detection System</title>
 
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f7fb;
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
 
-        .header {
-            background: #1e3a8a;
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            color: #222;
+        }
+
+        /* Header */
+        header {
+            background: #173f7a;
             color: white;
+            padding: 25px 15px;
             text-align: center;
-            padding: 25px;
         }
 
-        .header h1 {
-            margin: 0;
+        header h1 {
             font-size: 28px;
+            margin-bottom: 8px;
         }
 
-        .container {
-            width: 80%;
-            max-width: 800px;
-            margin: 35px auto;
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 3px 12px rgba(0,0,0,0.15);
-        }
-
-        label {
-            display: block;
-            margin-top: 18px;
-            font-weight: bold;
-        }
-
-        input, textarea {
-            width: 100%;
-            padding: 12px;
-            margin-top: 8px;
-            border: 1px solid #bbb;
-            border-radius: 6px;
-            box-sizing: border-box;
+        header p {
             font-size: 15px;
         }
 
+        /* Main container */
+        .container {
+            width: 90%;
+            max-width: 900px;
+            margin: 30px auto;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.12);
+            margin-bottom: 25px;
+        }
+
+        h2 {
+            color: #173f7a;
+            margin-bottom: 20px;
+        }
+
+        /* Form */
+        label {
+            display: block;
+            font-weight: bold;
+            margin-top: 15px;
+            margin-bottom: 7px;
+        }
+
+        input,
         textarea {
-            height: 130px;
-            resize: none;
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #bbb;
+            border-radius: 7px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        input:focus,
+        textarea:focus {
+            border-color: #173f7a;
+        }
+
+        textarea {
+            height: 140px;
+            resize: vertical;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
         }
 
         button {
-            margin-top: 20px;
-            width: 100%;
-            padding: 13px;
-            background: #1e3a8a;
-            color: white;
+            padding: 13px 20px;
             border: none;
-            border-radius: 6px;
-            font-size: 17px;
+            border-radius: 7px;
+            background: #173f7a;
+            color: white;
+            font-size: 16px;
             cursor: pointer;
         }
 
         button:hover {
-            background: #162d6b;
+            background: #0f2d59;
         }
 
-        .result {
+        .history-btn {
+            background: #555;
+        }
+
+        .history-btn:hover {
+            background: #333;
+        }
+
+        /* Message */
+        .message {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 6px;
             display: none;
-            margin-top: 30px;
-            padding: 22px;
-            border-radius: 10px;
-            background: #eef4ff;
         }
 
-        .result h2 {
-            margin-top: 0;
-            color: #1e3a8a;
+        .error {
+            background: #ffe5e5;
+            color: #a00000;
         }
 
-        .result p {
+        .success {
+            background: #e4f7e8;
+            color: #176b2c;
+        }
+
+        /* Result */
+        #resultSection {
+            display: none;
+        }
+
+        .result-box {
+            background: #f7f9fc;
+            border-left: 5px solid #173f7a;
+            padding: 20px;
+            border-radius: 7px;
+        }
+
+        .result-row {
+            margin: 12px 0;
             font-size: 17px;
         }
 
-        .bar {
+        .prediction {
+            font-weight: bold;
+            color: #173f7a;
+        }
+
+        .confidence {
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        /* Confidence bar */
+        .progress-container {
             width: 100%;
-            height: 20px;
+            height: 25px;
+            background: #ddd;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: #173f7a;
+            transition: width 0.6s ease;
+        }
+
+        /* Probability */
+        .probability-section {
+            margin-top: 25px;
+        }
+
+        .probability-item {
+            margin: 15px 0;
+        }
+
+        .probability-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .probability-bar {
+            height: 18px;
             background: #ddd;
             border-radius: 10px;
             overflow: hidden;
         }
 
-        .bar-fill {
+        .probability-fill {
             height: 100%;
             width: 0%;
-            background: #1e3a8a;
+            background: #173f7a;
+            transition: width 0.6s ease;
         }
 
-        .probability {
-            margin-top: 20px;
+        /* History */
+        #historySection {
+            display: none;
         }
 
-        .probability p {
-            margin: 8px 0;
+        .table-container {
+            overflow-x: auto;
         }
 
-        .footer {
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th {
+            background: #173f7a;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background: #f5f5f5;
+        }
+
+        /* Footer */
+        footer {
             text-align: center;
-            margin: 30px;
-            color: #555;
+            padding: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* Mobile */
+        @media (max-width: 600px) {
+
+            header h1 {
+                font-size: 22px;
+            }
+
+            .container {
+                width: 95%;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
         }
     </style>
 </head>
 
 <body>
 
-<div class="header">
-    <h1>AI-Based Cyberbullying and Online Spam Detection System</h1>
-    <p>AI-Based Message Classification for Online Safety</p>
-</div>
+    <!-- HEADER -->
+    <header>
+        <h1>AI-Based Cyberbullying and Online Spam Detection System</h1>
+        <p>AI-Based Message Classification for Online Safety</p>
+    </header>
 
-<div class="container">
 
-    <h2>Message Detection</h2>
+    <div class="container">
 
-    <label>Enter Username</label>
-    <input type="text" id="username" placeholder="Example: pooja123">
+        <!-- DETECTION FORM -->
+        <div class="card">
 
-    <label>Enter Message</label>
-    <textarea id="message"
-        placeholder="Enter your message for detection..."></textarea>
+            <h2>Message Detection</h2>
 
-    <button onclick="detectMessage()">Detect Message</button>
+            <form id="detectionForm">
 
-    <div class="result" id="result">
+                <label for="username">Enter Username</label>
 
-        <h2>Detection Result</h2>
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    placeholder="Enter Username (Example: pooja123)"
+                    required
+                >
 
-        <p><strong>Username:</strong>
-            <span id="resultUsername"></span>
-        </p>
 
-        <p><strong>Prediction:</strong>
-            <span id="prediction"></span>
-        </p>
+                <label for="message">Enter Message</label>
 
-        <p><strong>Confidence Level:</strong>
-            <span id="confidence"></span>
-        </p>
+                <textarea
+                    id="message"
+                    name="message"
+                    placeholder="Enter message for detection..."
+                    required
+                ></textarea>
 
-        <div class="bar">
-            <div class="bar-fill" id="confidenceBar"></div>
+
+                <div class="button-group">
+
+                    <button type="submit">
+                        Detect Message
+                    </button>
+
+                    <button
+                        type="button"
+                        class="history-btn"
+                        onclick="showHistory()">
+                        View Detection History
+                    </button>
+
+                </div>
+
+            </form>
+
+
+            <div id="errorMessage" class="message error"></div>
+
+            <div id="successMessage" class="message success"></div>
+
         </div>
 
-        <div class="probability">
 
-            <h3>Class Probabilities</h3>
+        <!-- RESULT SECTION -->
+        <div class="card" id="resultSection">
 
-            <p>
-                Normal:
-                <span id="normalProb">0%</span>
-            </p>
+            <h2>Detection Result</h2>
 
-            <p>
-                Spam:
-                <span id="spamProb">0%</span>
-            </p>
+            <div class="result-box">
 
-            <p>
-                Cyberbullying:
-                <span id="cyberProb">0%</span>
-            </p>
+                <div class="result-row">
+                    <strong>Username:</strong>
+                    <span id="resultUsername"></span>
+                </div>
+
+
+                <div class="result-row">
+                    <strong>Message:</strong>
+                    <span id="resultMessage"></span>
+                </div>
+
+
+                <div class="result-row">
+                    <strong>Prediction:</strong>
+                    <span
+                        id="prediction"
+                        class="prediction">
+                    </span>
+                </div>
+
+
+                <div class="result-row">
+                    <strong>Confidence Level:</strong>
+
+                    <span
+                        id="confidence"
+                        class="confidence">
+                    </span>
+                </div>
+
+
+                <!-- Confidence progress bar -->
+
+                <div class="progress-container">
+
+                    <div
+                        id="confidenceBar"
+                        class="progress-bar">
+                    </div>
+
+                </div>
+
+
+                <!-- Probabilities -->
+
+                <div class="probability-section">
+
+                    <h3>Class Probabilities</h3>
+
+
+                    <!-- Normal -->
+
+                    <div class="probability-item">
+
+                        <div class="probability-header">
+
+                            <span>Normal</span>
+
+                            <span id="normalProbability">
+                                0%
+                            </span>
+
+                        </div>
+
+                        <div class="probability-bar">
+
+                            <div
+                                id="normalBar"
+                                class="probability-fill">
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Spam -->
+
+                    <div class="probability-item">
+
+                        <div class="probability-header">
+
+                            <span>Spam</span>
+
+                            <span id="spamProbability">
+                                0%
+                            </span>
+
+                        </div>
+
+                        <div class="probability-bar">
+
+                            <div
+                                id="spamBar"
+                                class="probability-fill">
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Cyberbullying -->
+
+                    <div class="probability-item">
+
+                        <div class="probability-header">
+
+                            <span>Cyberbullying</span>
+
+                            <span id="cyberbullyingProbability">
+                                0%
+                            </span>
+
+                        </div>
+
+                        <div class="probability-bar">
+
+                            <div
+                                id="cyberbullyingBar"
+                                class="probability-fill">
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- DETECTION HISTORY -->
+
+        <div class="card" id="historySection">
+
+            <h2>Detection History</h2>
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>Username</th>
+                            <th>Message</th>
+                            <th>Prediction</th>
+                            <th>Confidence</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="historyTableBody">
+
+                    </tbody>
+
+                </table>
+
+            </div>
 
         </div>
 
     </div>
 
-</div>
 
-<div class="footer">
-    <p>AI-Based Cyberbullying and Online Spam Detection System</p>
-</div>
+    <footer>
+        AI-Based Cyberbullying and Online Spam Detection System
+    </footer>
 
 
-<script>
+    <script>
 
-function detectMessage() {
+        // ============================================
+        // DETECTION FORM
+        // ============================================
 
-    let username = document.getElementById("username").value.trim();
-    let message = document.getElementById("message").value.trim();
+        document
+            .getElementById("detectionForm")
+            .addEventListener("submit", async function(event) {
 
-    if (username === "" || message === "") {
-        alert("Please enter username and message.");
-        return;
-    }
+                event.preventDefault();
 
-    let text = message.toLowerCase();
+                hideMessages();
 
-    let prediction = "Normal";
-    let confidence = 90;
+                const username =
+                    document
+                    .getElementById("username")
+                    .value
+                    .trim();
 
-    let normal = 90;
-    let spam = 5;
-    let cyber = 5;
+                const message =
+                    document
+                    .getElementById("message")
+                    .value
+                    .trim();
 
-    /* Spam keywords */
-    if (
-        text.includes("win") ||
-        text.includes("prize") ||
-        text.includes("lottery") ||
-        text.includes("discount") ||
-        text.includes("click") ||
-        text.includes("offer")
-    ) {
-        prediction = "Spam";
-        confidence = 94;
 
-        normal = 2;
-        spam = 94;
-        cyber = 4;
-    }
+                // Validate input
 
-    /* Cyberbullying keywords */
-    else if (
-        text.includes("stupid") ||
-        text.includes("idiot") ||
-        text.includes("hate you") ||
-        text.includes("nobody likes you") ||
-        text.includes("loser")
-    ) {
-        prediction = "Cyberbullying";
-        confidence = 92;
+                if (username === "") {
 
-        normal = 3;
-        spam = 5;
-        cyber = 92;
-    }
+                    showError("Please enter a username.");
 
-    /* Display result */
+                    return;
+                }
 
-    document.getElementById("result").style.display = "block";
 
-    document.getElementById("resultUsername").innerText = username;
+                if (message === "") {
 
-    document.getElementById("prediction").innerText = prediction;
+                    showError("Please enter a message.");
 
-    document.getElementById("confidence").innerText =
-        confidence + "%";
+                    return;
+                }
 
-    document.getElementById("confidenceBar").style.width =
-        confidence + "%";
 
-    document.getElementById("normalProb").innerText =
-        normal + "%";
+                try {
 
-    document.getElementById("spamProb").innerText =
-        spam + "%";
+                    // Send data to Flask
 
-    document.getElementById("cyberProb").innerText =
-        cyber + "%";
-}
+                    const response = await fetch("/predict", {
 
-</script>
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+
+                        body: JSON.stringify({
+
+                            username: username,
+                            message: message
+
+                        })
+
+                    });
+
+
+                    const data = await response.json();
+
+
+                    if (!response.ok) {
+
+                        showError(
+                            data.error ||
+                            "Prediction failed."
+                        );
+
+                        return;
+                    }
+
+
+                    // Display result
+
+                    document
+                        .getElementById("resultSection")
+                        .style.display = "block";
+
+
+                    document
+                        .getElementById("resultUsername")
+                        .textContent = data.username;
+
+
+                    document
+                        .getElementById("resultMessage")
+                        .textContent = data.message;
+
+
+                    document
+                        .getElementById("prediction")
+                        .textContent = data.prediction;
+
+
+                    document
+                        .getElementById("confidence")
+                        .textContent =
+                        data.confidence.toFixed(2) + "%";
+
+
+                    // Confidence bar
+
+                    document
+                        .getElementById("confidenceBar")
+                        .style.width =
+                        data.confidence + "%";
+
+
+                    // Normal probability
+
+                    document
+                        .getElementById("normalProbability")
+                        .textContent =
+                        data.normal_probability.toFixed(2) + "%";
+
+
+                    document
+                        .getElementById("normalBar")
+                        .style.width =
+                        data.normal_probability + "%";
+
+
+                    // Spam probability
+
+                    document
+                        .getElementById("spamProbability")
+                        .textContent =
+                        data.spam_probability.toFixed(2) + "%";
+
+
+                    document
+                        .getElementById("spamBar")
+                        .style.width =
+                        data.spam_probability + "%";
+
+
+                    // Cyberbullying probability
+
+                    document
+                        .getElementById("cyberbullyingProbability")
+                        .textContent =
+                        data.cyberbullying_probability.toFixed(2) + "%";
+
+
+                    document
+                        .getElementById("cyberbullyingBar")
+                        .style.width =
+                        data.cyberbullying_probability + "%";
+
+
+                    showSuccess(
+                        "Message detected and stored successfully."
+                    );
+
+                }
+
+                catch (error) {
+
+                    showError(
+                        "Unable to connect to the Flask server."
+                    );
+
+                    console.error(error);
+
+                }
+
+            });
+
+
+        // ============================================
+        // VIEW DETECTION HISTORY
+        // ============================================
+
+        async function showHistory() {
+
+            hideMessages();
+
+            try {
+
+                const response =
+                    await fetch("/history");
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    showError(
+                        data.error ||
+                        "Unable to load detection history."
+                    );
+
+                    return;
+                }
+
+
+                const historySection =
+                    document
+                    .getElementById("historySection");
+
+
+                const tableBody =
+                    document
+                    .getElementById("historyTableBody");
+
+
+                tableBody.innerHTML = "";
+
+
+                if (data.length === 0) {
+
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="6"
+                                style="text-align:center;">
+                                No detection records found.
+                            </td>
+                        </tr>
+                    `;
+
+                }
+
+                else {
+
+                    data.forEach(function(record) {
+
+                        const row =
+                            document.createElement("tr");
+
+
+                        row.innerHTML = `
+
+                            <td>
+                                ${escapeHTML(record.username)}
+                            </td>
+
+                            <td>
+                                ${escapeHTML(record.message)}
+                            </td>
+
+                            <td>
+                                ${escapeHTML(record.prediction)}
+                            </td>
+
+                            <td>
+                                ${Number(record.confidence).toFixed(2)}%
+                            </td>
+
+                            <td>
+                                ${escapeHTML(record.detection_date)}
+                            </td>
+
+                            <td>
+                                ${escapeHTML(record.detection_time)}
+                            </td>
+
+                        `;
+
+
+                        tableBody.appendChild(row);
+
+                    });
+
+                }
+
+
+                historySection.style.display = "block";
+
+                historySection.scrollIntoView({
+                    behavior: "smooth"
+                });
+
+            }
+
+            catch (error) {
+
+                showError(
+                    "Unable to connect to the Flask server."
+                );
+
+                console.error(error);
+
+            }
+
+        }
+
+
+        // ============================================
+        // SECURITY HELPER
+        // ============================================
+
+        function escapeHTML(value) {
+
+            const div =
+                document.createElement("div");
+
+            div.textContent =
+                value;
+
+            return div.innerHTML;
+
+        }
+
+
+        // ============================================
+        // ERROR MESSAGE
+        // ============================================
+
+        function showError(message) {
+
+            const errorBox =
+                document.getElementById("errorMessage");
+
+            errorBox.textContent =
+                message;
+
+            errorBox.style.display =
+                "block";
+
+        }
+
+
+        // ============================================
+        // SUCCESS MESSAGE
+        // ============================================
+
+        function showSuccess(message) {
+
+            const successBox =
+                document.getElementById("successMessage");
+
+            successBox.textContent =
+                message;
+
+            successBox.style.display =
+                "block";
+
+        }
+
+
+        // ============================================
+        // HIDE MESSAGES
+        // ============================================
+
+        function hideMessages() {
+
+            document
+                .getElementById("errorMessage")
+                .style.display = "none";
+
+
+            document
+                .getElementById("successMessage")
+                .style.display = "none";
+
+        }
+
+    </script>
 
 </body>
+
 </html>
-        
