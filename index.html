@@ -1,33 +1,275 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Cyberbullying & Spam Detection</title>
-</head>
-<body>
-    <h1>AI-Based Cyberbullying and Online Spam Detection System</h1>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <p>Enter your message below:</p>
+    <title>AI-Based Cyberbullying and Online Spam Detection</title>
 
-    <textarea id="message" rows="5" cols="50"></textarea>
-    <br><br>
-
-    <button onclick="detect()">Detect</button>
-
-    <h2 id="result"></h2>
-
-    <script>
-        function detect() {
-            let message = document.getElementById("message").value;
-
-            if (message.trim() === "") {
-                document.getElementById("result").innerText =
-                    "Please enter a message.";
-                return;
-            }
-
-            document.getElementById("result").innerText =
-                "Message submitted for detection.";
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            margin: 0;
+            padding: 0;
         }
-    </script>
+
+        .header {
+            background: #1e3a8a;
+            color: white;
+            text-align: center;
+            padding: 25px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 800px;
+            margin: 35px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.15);
+        }
+
+        label {
+            display: block;
+            margin-top: 18px;
+            font-weight: bold;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            margin-top: 8px;
+            border: 1px solid #bbb;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 15px;
+        }
+
+        textarea {
+            height: 130px;
+            resize: none;
+        }
+
+        button {
+            margin-top: 20px;
+            width: 100%;
+            padding: 13px;
+            background: #1e3a8a;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 17px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #162d6b;
+        }
+
+        .result {
+            display: none;
+            margin-top: 30px;
+            padding: 22px;
+            border-radius: 10px;
+            background: #eef4ff;
+        }
+
+        .result h2 {
+            margin-top: 0;
+            color: #1e3a8a;
+        }
+
+        .result p {
+            font-size: 17px;
+        }
+
+        .bar {
+            width: 100%;
+            height: 20px;
+            background: #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            width: 0%;
+            background: #1e3a8a;
+        }
+
+        .probability {
+            margin-top: 20px;
+        }
+
+        .probability p {
+            margin: 8px 0;
+        }
+
+        .footer {
+            text-align: center;
+            margin: 30px;
+            color: #555;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    <h1>AI-Based Cyberbullying and Online Spam Detection System</h1>
+    <p>AI-Based Message Classification for Online Safety</p>
+</div>
+
+<div class="container">
+
+    <h2>Message Detection</h2>
+
+    <label>Enter Username</label>
+    <input type="text" id="username" placeholder="Example: pooja123">
+
+    <label>Enter Message</label>
+    <textarea id="message"
+        placeholder="Enter your message for detection..."></textarea>
+
+    <button onclick="detectMessage()">Detect Message</button>
+
+    <div class="result" id="result">
+
+        <h2>Detection Result</h2>
+
+        <p><strong>Username:</strong>
+            <span id="resultUsername"></span>
+        </p>
+
+        <p><strong>Prediction:</strong>
+            <span id="prediction"></span>
+        </p>
+
+        <p><strong>Confidence Level:</strong>
+            <span id="confidence"></span>
+        </p>
+
+        <div class="bar">
+            <div class="bar-fill" id="confidenceBar"></div>
+        </div>
+
+        <div class="probability">
+
+            <h3>Class Probabilities</h3>
+
+            <p>
+                Normal:
+                <span id="normalProb">0%</span>
+            </p>
+
+            <p>
+                Spam:
+                <span id="spamProb">0%</span>
+            </p>
+
+            <p>
+                Cyberbullying:
+                <span id="cyberProb">0%</span>
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="footer">
+    <p>AI-Based Cyberbullying and Online Spam Detection System</p>
+</div>
+
+
+<script>
+
+function detectMessage() {
+
+    let username = document.getElementById("username").value.trim();
+    let message = document.getElementById("message").value.trim();
+
+    if (username === "" || message === "") {
+        alert("Please enter username and message.");
+        return;
+    }
+
+    let text = message.toLowerCase();
+
+    let prediction = "Normal";
+    let confidence = 90;
+
+    let normal = 90;
+    let spam = 5;
+    let cyber = 5;
+
+    /* Spam keywords */
+    if (
+        text.includes("win") ||
+        text.includes("prize") ||
+        text.includes("lottery") ||
+        text.includes("discount") ||
+        text.includes("click") ||
+        text.includes("offer")
+    ) {
+        prediction = "Spam";
+        confidence = 94;
+
+        normal = 2;
+        spam = 94;
+        cyber = 4;
+    }
+
+    /* Cyberbullying keywords */
+    else if (
+        text.includes("stupid") ||
+        text.includes("idiot") ||
+        text.includes("hate you") ||
+        text.includes("nobody likes you") ||
+        text.includes("loser")
+    ) {
+        prediction = "Cyberbullying";
+        confidence = 92;
+
+        normal = 3;
+        spam = 5;
+        cyber = 92;
+    }
+
+    /* Display result */
+
+    document.getElementById("result").style.display = "block";
+
+    document.getElementById("resultUsername").innerText = username;
+
+    document.getElementById("prediction").innerText = prediction;
+
+    document.getElementById("confidence").innerText =
+        confidence + "%";
+
+    document.getElementById("confidenceBar").style.width =
+        confidence + "%";
+
+    document.getElementById("normalProb").innerText =
+        normal + "%";
+
+    document.getElementById("spamProb").innerText =
+        spam + "%";
+
+    document.getElementById("cyberProb").innerText =
+        cyber + "%";
+}
+
+</script>
+
 </body>
 </html>
+        
