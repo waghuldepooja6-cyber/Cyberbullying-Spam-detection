@@ -1,1 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cyberbullying & Spam Detection</title>
+</head>
+<body>
+    <h1>AI-Based Cyberbullying and Online Spam Detection System</h1>
 
+    <p>Enter your message below:</p>
+
+    <textarea id="message" rows="5" cols="50"></textarea>
+    <br><br>
+
+    <button onclick="detect()">Detect</button>
+
+    <h2 id="result"></h2>
+
+    <script>
+        function detect() {
+            let message = document.getElementById("message").value;
+
+            if (message.trim() === "") {
+                document.getElementById("result").innerText =
+                    "Please enter a message.";
+                return;
+            }
+
+            document.getElementById("result").innerText =
+                "Message submitted for detection.";
+        }
+    </script>
+</body>
+</html>
