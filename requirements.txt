@@ -1,6 +1,5 @@
 Flask
-scikit-learn
 gunicorn
-numpy
-pandas
+scikit-learn
 mysql-connector-python
+numpy
