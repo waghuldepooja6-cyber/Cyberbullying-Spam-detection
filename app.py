@@ -21,6 +21,11 @@ class Detection(db.Model):
 
 with app.app_context():
     db.create_all() 
+@app.route("/history")
+def history():
+    records = Detection.query.order_by(Detection.id.desc()).all()
+
+    return render_template("history.html", records=records)
 
 # ==========================================================
 # 1. TRAINING DATA
