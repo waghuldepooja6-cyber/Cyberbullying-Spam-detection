@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Detection History</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      color: #222;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: auto;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 700px;
+    }
+
+    th,
+    td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+
+    th {
+      background: #222;
+      color: white;
+    }
+
+    tr:hover {
+      background: #f5f5f5;
+    }
+
+    #loading {
+      text-align: center;
+      padding: 20px;
+      font-size: 18px;
+    }
+
+    #error {
+      display: none;
+      background: #ffe0e0;
+      color: #b00020;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    #noData {
+      display: none;
+      text-align: center;
+      padding: 25px;
+      color: #666;
+    }
+
+    .refresh-btn {
+      display: block;
+      margin: 0 auto 20px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      background: #007bff;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .refresh-btn:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <h1>Detection History</h1>
+
+    <button class="refresh-btn" onclick="loadHistory()">
+      Refresh History
+    </button>
+
+    <div id="error"></div>
+
+    <div class="card">
+
+      <div id="loading">
+        Loading detection history...
+      </div>
+
+      <div id="noData">
+        No detection history found.
+      </div>
+
+      <table id="historyTable" style="display:none;">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Detection</th>
+            <th>Confidence</th>
+            <th>Date & Time</th>
+          </tr>
+        </thead>
+
+        <tbody id="historyBody"></tbody>
+      </table>
+
+    </div>
+
+  </div>
+
+
+  <script>
+
+    async function loadHistory() {
+
+      const loading = document.getElementById("loading");
+      const errorBox = document.getElementById("error");
+      const noData = document.getElementById("noData");
+      const table = document.getElementById("historyTable");
+      const tbody = document.getElementById("historyBody");
+
+      loading.style.display = "block";
+      errorBox.style.display = "none";
+      noData.style.display = "none";
+      table.style.display = "none";
+      tbody.innerHTML = "";
+
+      try {
+
+        /*
+         * IMPORTANT:
+         * localhost वापरलेले नाही.
+         * Render वर current website च्याच backend ला request जाईल.
+         */
+        const response = await fetch("/api/history");
+
+        if (!response.ok) {
+          throw new Error(
+            "Server returned " + response.status
+          );
+        }
+
+        const data = await response.json();
+
+        console.log("History data:", data);
+
+        loading.style.display = "none";
+
+        /*
+         * Backend कडून array येणे अपेक्षित आहे.
+         *
+         * Example:
+         * [
+         *   {
+         *     detection: "Person",
+         *     confidence: 95,
+         *     createdAt: "2026-10-08T08:20:00"
+         *   }
+         * ]
+         */
+
+        let history = data;
+
+        /*
+         * जर backend { history: [...] }
+         * किंवा { detections: [...] } पाठवत असेल
+         * तरी हे handle होईल.
+         */
+        if (!Array.isArray(history)) {
+          if (Array.isArray(data.history)) {
+            history = data.history;
+          }
+          else if (Array.isArray(data.detections)) {
+            history = data.detections;
+          }
+          else if (Array.isArray(data.data)) {
+            history = data.data;
+          }
+          else {
+            history = [];
+          }
+        }
+
+        if (history.length === 0) {
+          noData.style.display = "block";
+          return;
+        }
+
+        history.forEach((item, index) => {
+
+          const row = document.createElement("tr");
+
+          /*
+           * Different possible database field names handle केले आहेत.
+           */
+          const detection =
+            item.detection ||
+            item.label ||
+            item.className ||
+            item.name ||
+            item.result ||
+            "Unknown";
+
+          const confidence =
+            item.confidence !== undefined
+              ? item.confidence
+              : item.score !== undefined
+                ? item.score
+                : "-";
+
+          const dateValue =
+            item.createdAt ||
+            item.created_at ||
+            item.timestamp ||
+            item.date ||
+            item.time;
+
+          let dateText = "-";
+
+          if (dateValue) {
+
+            const date = new Date(dateValue);
+
+            if (!isNaN(date.getTime())) {
+              dateText = date.toLocaleString();
+            } else {
+              dateText = dateValue;
+            }
+          }
+
+          let confidenceText = confidence;
+
+          /*
+           * जर confidence 0.95 असेल तर 95%
+           */
+          if (
+            typeof confidence === "number" &&
+            confidence <= 1
+          ) {
+            confidenceText =
+              (confidence * 100).toFixed(2) + "%";
+          }
+          else if (
+            typeof confidence === "number"
+          ) {
+            confidenceText =
+              confidence.toFixed(2) + "%";
+          }
+
+          row.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${escapeHtml(String(detection))}</td>
+            <td>${escapeHtml(String(confidenceText))}</td>
+            <td>${escapeHtml(String(dateText))}</td>
+          `;
+
+          tbody.appendChild(row);
+
+        });
+
+        table.style.display = "table";
+
+      }
+
+      catch (error) {
+
+        console.error("History error:", error);
+
+        loading.style.display = "none";
+
+        errorBox.style.display = "block";
+
+        errorBox.textContent =
+          "Unable to load detection history. Please check your backend API.";
+      }
+
+    }
+
+
+    /*
+     * HTML injection पासून basic protection.
+     */
+    function escapeHtml(value) {
+
+      return value
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+    }
+
+
+    /*
+     * Page उघडल्यावर automatically history load होईल.
+     */
+    document.addEventListener(
+      "DOMContentLoaded",
+      loadHistory
+    );
+
+  </script>
+
+</body>
+</html>
